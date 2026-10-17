@@ -1,0 +1,5 @@
+[project]
+name = "roblox-headless-multi-instance"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = []

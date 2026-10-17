@@ -1,0 +1,27 @@
+--- session started 2026-09-25 21:14:59 ---
+[21:14:59] Acquired 'ROBLOX_singletonMutex' (multi-instance guard active).
+[21:14:59] Locking RobloxCookies.dat (error-773 mitigation active).
+Guard active. Mode: follow (no Place ID — pick a game in the client)
+Verifying account cookies...
+  OK  hhhhhhohkk: hhhhhhohkk (Monke)
+  OK  siikk12: siikk12 (siikk12)
+  OK  hhhhhhohkk2: hhhhhhohkk2 (hhhhhhohkk2)
+  OK  hhhhhhohkk3: hhhhhhohkk3 (hhhhhhohkk3)
+  OK  hhhhhhohkk4: hhhhhhohkk4 (hhhhhhohkk4)
+  OK  hhhhhhohkk5: hhhhhhohkk5 (hhhhhhohkk5)
+Verification done.
+Skipping 4 disabled account(s): hhhhhhohkk2, hhhhhhohkk3, hhhhhhohkk4, hhhhhhohkk5
+[21:15:37] [hhhhhhohkk] opened Roblox home screen (follow mode, no placeId).
+[21:15:45] [hhhhhhohkk] visible (main/GUI). pid=12740
+[21:15:45] [follow] monitoring 'hhhhhhohkk' (pid 12740) — 1s health checks on every alt (auto-reconnect on drops).
+[21:15:45] Anti-AFK: alts will jump (Space) every 900s via transparently focused jump (invisible, but the main loses focus for a few ms).
+[21:15:45] Alts run as background work (EcoQoS + low priority) so their hidden rendering costs less CPU/GPU.
+[21:15:45] Closed 1 untracked Roblox client process(es) (orphans from an earlier session): pids [23348].
+[21:15:45] [follow] hhhhhhohkk joined a game — launching alts (place 107778070777162, job fa4a1a6b-4794-465d-af66-73189bfd22ae).
+[21:15:46] [siikk12] joining main's server (job fa4a1a6b-4794-465d-af66-73189bfd22ae).
+[21:15:52] [siikk12] hidden (no-render). pid=6312
+[21:15:52] [siikk12] joined main's server (pid 6312).
+[21:16:54] [hhhhhhohkk] window restored (visible).
+[21:16:54] [follow] follow loop stopped.
+[21:16:54] [siikk12] window restored (visible).
+=== GUI closed ===
