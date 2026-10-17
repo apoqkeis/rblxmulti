@@ -1082,9 +1082,10 @@ def build_join_url(place_id, tracker, job_id=None, method="api"):
         params = [
             ("request", "RequestGame"),
             ("browserTrackerId", tracker),
-            ("placeId", place_id),
-            ("isPlayTogetherGame", "false"),
         ]
+        if place_id:
+            params.append(("placeId", place_id))
+        params.append(("isPlayTogetherGame", "false"))
         query = urllib.parse.urlencode(params)
         return f"https://assetgame.roblox.com/game/PlaceLauncher.ashx?{query}"
     if (method or "api").strip().lower() == "pageurl":
@@ -1092,10 +1093,11 @@ def build_join_url(place_id, tracker, job_id=None, method="api"):
     params = [
         ("request", "RequestGameJob"),
         ("browserTrackerId", tracker),
-        ("placeId", place_id),
-        ("isPlayTogetherGame", "false"),
-        ("gameId", job_id),
     ]
+    if place_id:
+        params.append(("placeId", place_id))
+    params.append(("isPlayTogetherGame", "false"))
+    params.append(("gameId", job_id))
     query = urllib.parse.urlencode(params)
     return f"https://assetgame.roblox.com/game/PlaceLauncher.ashx?{query}"
 
@@ -2852,29 +2854,44 @@ class RobloxManager:
                     # be stale forward (the old session's job) and stale
                     # backward (a game already left).
                     in_game = log_in_game
-                    if in_game and log_job:
+                    # Use log job/place whenever available - the log is
+                    # authoritative for WHICH server, even when presence
+                    # returns no placeId (which happens on some clients).
+                    if log_job:
+                        if job and log_job != job:
+                            self.log(f"[follow] {name}'s server corrected: presence "
+                                     f"said {job}, the client's own log says "
+                                     f"{log_job} (trusting the log).")
                         job, place = log_job, (log_place or place)
+                    elif log_place and not place:
+                        place = log_place
                 elif log_job:
-                    # No session state yet. The join line is still better than
-                    # a stale presence reading for WHICH server, but it says
-                    # nothing about whether the main is still in it.
+                    # No session state yet, but we have a join line. Trust it
+                    # for WHICH server even though it says nothing about whether
+                    # the main is still in it.
                     if job and log_job != job:
-                        self.log(f"[follow] {name}'s server corrected: presence said "
-                                 f"{job}, the client's own log says {log_job} "
-                                 f"(trusting the log).")
+                        self.log(f"[follow] {name}'s server corrected: presence "
+                                 f"said {job}, the client's own log says "
+                                 f"{log_job} (trusting the log).")
                     job, place = log_job, (log_place or place)
+                elif log_place and not place:
+                    place = log_place
 
                 if in_game:
                     # the main is back in a game, so alt launches are allowed again
                     self._alts_closed.clear()
                     self._target = (place, job)
-                    if place and not self._joined:
+                    # Launch alts if we know the place OR at least the job
+                    # (gameId). PlaceLauncher can resolve a jobId even without
+                    # a placeId - some clients don't report placeId in presence.
+                    if (place or job) and not self._joined:
                         self.log(f"[follow] {name} joined a game — launching alts "
-                                 f"(place {place}, job {job or 'n/a'}).")
-                        self._status(name, "in game", f"place {place} job {job or 'n/a'}")
+                                 f"(place {place or 'n/a'}, job {job or 'n/a'}).")
+                        self._status(name, "in game", f"place {place or 'n/a'} job {job or 'n/a'}")
                         self.on_follow(f"{name} in-game — launching alts…")
-                    if not place:
-                        self.log("[follow] main is in-game but presence gave no place — retrying.")
+                    if not place and not job:
+                        self.log("[follow] main is in-game but presence and "
+                                 "client log gave no place or job — retrying.")
                     for acc in alt_accounts:
                         aname = acc.get("name", "?")
                         # Re-checked every pass, not just from the one-time
@@ -2888,8 +2905,8 @@ class RobloxManager:
                             if aname in self._joined:
                                 self._joined.discard(aname)
                             continue
-                        if not place or aname in self._reconnecting:
-                            continue                       # being reconnected
+                        if not (place or job) or aname in self._reconnecting:
+                            continue                       # nothing to target yet
                         with self._lock:
                             has_client = aname in self.running
                         if aname in self._joined:
